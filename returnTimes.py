@@ -58,6 +58,7 @@ def convertToEpochStop(line, myStop):
     with open(line) as json_file:
         data = json.load(json_file)
         for s in data:
+            # Important piece
             if s == myStop:
                 for stop in data[s]:
                     if "Drop" not in stop and "-" not in stop:
@@ -80,6 +81,7 @@ def convertToEpochN(line, myStop, n):
                         stop_mod = stop.replace(".", "")
                         t = datetime.datetime.strptime(stop_mod, '%I:%M %p').time()
                         x = datetime.datetime.combine(today, t).timestamp()
+                        # important piece
                         if x > current and counter < n:
                             darr.append(x)
                             counter += 1
