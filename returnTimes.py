@@ -1,13 +1,13 @@
 # TODO Translate into a class and then incorporate into https://github.com/Stevens-Shuttles/data
-import datetime as datetime
+from datetime import date, datetime, timezone
 import json
 import pytz
 
-today = datetime.date.today()
+today = date.today()
 
 
 def get_shuttle(line):
-    current = datetime.datetime.now().timestamp()
+    current = datetime.now(timezone.utc).timestamp()
     gray_late = convert_one_to_epoch("10:45 pm")
     red_early = convert_one_to_epoch("7:21 am")
 
@@ -38,23 +38,25 @@ def get_shuttle(line):
 
 
 def convert_one_to_epoch(time):
-    t = datetime.datetime.strptime(time, '%H:%M %p').time()
-    return datetime.datetime.combine(today, t).timestamp()
+    t = datetime.strptime(time, '%H:%M %p').time()
+    return datetime.combine(today, t).timestamp()
 
 
 def convert_to_epoch_whole_line(line):
+    result_list = []
     with open(line) as json_file:
         data = json.load(json_file)
         for s in data:
             for stop in data[s]:
                 if "Drop" not in stop and "-" not in stop:
                     stop_mod = stop.replace(".", "")
-                    t = datetime.datetime.strptime(stop_mod, '%H:%M %p').time()
-                    data.append(datetime.datetime.combine(today, t).timestamp())
-    return data
+                    t = datetime.strptime(stop_mod, '%H:%M %p').time()
+                    result_list.append(datetime.combine(today, t).timestamp())
+    return result_list
 
 
 def convert_to_epoch_stop(line, my_stop):
+    result_list = []
     with open(line) as json_file:
         data = json.load(json_file)
         for s in data:
@@ -63,14 +65,15 @@ def convert_to_epoch_stop(line, my_stop):
                 for stop in data[s]:
                     if "Drop" not in stop and "-" not in stop:
                         stop_mod = stop.replace(".", "")
-                        t = datetime.datetime.strptime(stop_mod, '%H:%M %p').time()
-                        data.append(datetime.datetime.combine(today, t).timestamp())
-    return data
+                        t = datetime.strptime(stop_mod, '%H:%M %p').time()
+                        result_list.append(datetime.combine(today, t).timestamp())
+    return result_list
 
 
 def convert_to_epoch_now(line, my_stop, n):
-    current = datetime.datetime.now().timestamp()
+    current = datetime.now().timestamp()
     counter = 0
+    result_list = []
     with open(line) as json_file:
         data = json.load(json_file)
         for s in data:
@@ -78,19 +81,19 @@ def convert_to_epoch_now(line, my_stop, n):
                 for stop in data[s]:
                     if "Drop" not in stop and "-" not in stop:
                         stop_mod = stop.replace(".", "")
-                        t = datetime.datetime.strptime(stop_mod, '%I:%M %p').time()
-                        x = datetime.datetime.combine(today, t).timestamp()
+                        t = datetime.strptime(stop_mod, '%I:%M %p').time()
+                        x = datetime.combine(today, t).timestamp()
                         # important piece
                         if x > current and counter < n:
-                            data.append(x)
+                            result_list.append(x)
                             counter += 1
-    return data
+    return result_list
 
 
-def timezone(ts):
-    tz = pytz.timezone('America/New_York')
-    dt = datetime.datetime.fromtimestamp(tz)
-    return dt
+# def timezone(ts):
+#     tz = pytz.timezone('America/New_York')
+#     dt = datetime.fromtimestamp(tz)
+#     return dt
 
 
 def print_times(arr):
@@ -110,7 +113,7 @@ myLine = get_shuttle("Green")
 # print_times(convert_to_epoch_whole_line(myLine))
 
 # returns the next N times for any given stop
-# print(convert_to_epoch_now(myLine, "8th & Monroe", 5))
+print(convert_to_epoch_now(myLine, "8th & Monroe", 5))
 
 # convert to local timezone (can be done when we figure out how exactly we will use this)
 # timezone(convert_to_epoch_now(myLine, "8th & Monroe", 1)[0])
