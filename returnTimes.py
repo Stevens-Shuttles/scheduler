@@ -47,8 +47,8 @@ def convertToEpochWholeLine(line):
         for s in data:
             for stop in data[s]:
                 if "Drop" not in stop and "-" not in stop:
-                    stop_mod = stop.replace(".", "")
-                    t = datetime.datetime.strptime(stop_mod, '%H:%M %p').time()
+                    stop_mod = stop.replace("#           # .", "")
+                    t = datetime.datetime.strptime(stop_mod, '%I:%M %p').time()
                     darr.append(datetime.datetime.combine(today, t).timestamp())
     return darr
 
@@ -63,7 +63,7 @@ def convertToEpochStop(line, myStop):
                 for stop in data[s]:
                     if "Drop" not in stop and "-" not in stop:
                         stop_mod = stop.replace(".", "")
-                        t = datetime.datetime.strptime(stop_mod, '%H:%M %p').time()
+                        t = datetime.datetime.strptime(stop_mod, '%I:%M %p').time()
                         darr.append(datetime.datetime.combine(today, t).timestamp())
     return darr
 
