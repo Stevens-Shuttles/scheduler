@@ -1,15 +1,17 @@
-import datetime as datetime
+# TODO Translate into a class and then incorporate into https://github.com/Stevens-Shuttles/data
+from datetime import date, datetime, timezone
 import json
 import pytz
 
-today = datetime.date.today()
+today = date.today()
 
 
-def getShuttle(line):
-    current = datetime.datetime.now().timestamp()
-    grayLate = convertOneToEpoch("10:45 pm")
-    redEarly = convertOneToEpoch("7:21 am")
+def get_shuttle(line):
+    current = datetime.now(timezone.utc).timestamp()
+    gray_late = convert_one_to_epoch("10:45 pm")
+    red_early = convert_one_to_epoch("7:21 am")
 
+    # TODO load times from a configuration file so that they can be updated from a GUI
     if today.weekday() == 5:
         return "json/Saturday.json"
     elif today.weekday() == 6:
@@ -20,12 +22,12 @@ def getShuttle(line):
         if line == "Blue":
             return "json/Blue.json"
         elif line == "Gray":
-            if grayLate > current:
+            if gray_late > current:
                 return "json/GrayLate.json"
             else:
                 return "json/Gray.json"
         elif line == "Red":
-            if redEarly < current:
+            if red_early < current:
                 return "json/RedEarly.json"
             else:
                 return "json/Red.json"
@@ -35,66 +37,66 @@ def getShuttle(line):
             return "Null"
 
 
-def convertOneToEpoch(time):
-    t = datetime.datetime.strptime(time, '%H:%M %p').time()
-    return datetime.datetime.combine(today, t).timestamp()
+def convert_one_to_epoch(time):
+    t = datetime.strptime(time, '%H:%M %p').time()
+    return datetime.combine(today, t).timestamp()
 
 
-def convertToEpochWholeLine(line):
-    darr = []
+def convert_to_epoch_whole_line(line):
+    result_list = []
     with open(line) as json_file:
         data = json.load(json_file)
         for s in data:
             for stop in data[s]:
                 if "Drop" not in stop and "-" not in stop:
-                    stop_mod = stop.replace("#           # .", "")
-                    t = datetime.datetime.strptime(stop_mod, '%I:%M %p').time()
-                    darr.append(datetime.datetime.combine(today, t).timestamp())
-    return darr
+                    stop_mod = stop.replace(".", "")
+                    t = datetime.strptime(stop_mod, '%H:%M %p').time()
+                    result_list.append(datetime.combine(today, t).timestamp())
+    return result_list
 
 
-def convertToEpochStop(line, myStop):
-    darr = []
+def convert_to_epoch_stop(line, my_stop):
+    result_list = []
     with open(line) as json_file:
         data = json.load(json_file)
         for s in data:
             # Important piece
-            if s == myStop:
+            if s == my_stop:
                 for stop in data[s]:
                     if "Drop" not in stop and "-" not in stop:
                         stop_mod = stop.replace(".", "")
-                        t = datetime.datetime.strptime(stop_mod, '%I:%M %p').time()
-                        darr.append(datetime.datetime.combine(today, t).timestamp())
-    return darr
+                        t = datetime.strptime(stop_mod, '%H:%M %p').time()
+                        result_list.append(datetime.combine(today, t).timestamp())
+    return result_list
 
 
-def convertToEpochN(line, myStop, n):
-    current = datetime.datetime.now().timestamp()
+def convert_to_epoch_now(line, my_stop, n):
+    current = datetime.now().timestamp()
     counter = 0
-    darr = []
+    result_list = []
     with open(line) as json_file:
         data = json.load(json_file)
         for s in data:
-            if s == myStop:
+            if s == my_stop:
                 for stop in data[s]:
                     if "Drop" not in stop and "-" not in stop:
                         stop_mod = stop.replace(".", "")
-                        t = datetime.datetime.strptime(stop_mod, '%I:%M %p').time()
-                        x = datetime.datetime.combine(today, t).timestamp()
+                        t = datetime.strptime(stop_mod, '%I:%M %p').time()
+                        x = datetime.combine(today, t).timestamp()
                         # important piece
                         if x > current and counter < n:
-                            darr.append(x)
+                            result_list.append(x)
                             counter += 1
-    return darr
+    return result_list
 
 
-def timezone(ts):
-    tz = pytz.timezone('America/New_York')
-    dt = datetime.datetime.fromtimestamp(tz)
-    return dt
+# def timezone(ts):
+#     tz = pytz.timezone('America/New_York')
+#     dt = datetime.fromtimestamp(tz)
+#     return dt
 
 
-def printTimes(arr):
+def print_times(arr):
     for i in arr:
         print(i)
 
@@ -102,18 +104,16 @@ def printTimes(arr):
 # Example Usage #
 
 # pick a line
-myLine = getShuttle("Green")
+myLine = get_shuttle("Green")
 
 # returns in epoch all the times for any given stop
-# printTimes(convertToEpochStop(myLine, "8th & Monroe"))
+# print_times(convert_to_epoch_stop(myLine, "8th & Monroe"))
 
 # returns in epoch all the times for any given route
-# printTimes(convertToEpochWholeLine(myLine))
+# print_times(convert_to_epoch_whole_line(myLine))
 
 # returns the next N times for any given stop
-# print(convertToEpochN(myLine, "8th & Monroe", 5))
+print(convert_to_epoch_now(myLine, "8th & Monroe", 5))
 
 # convert to local timezone (can be done when we figure out how exactly we will use this)
-# timezone(convertToEpochN(myLine, "8th & Monroe", 1)[0])
-
-#           #
+# timezone(convert_to_epoch_now(myLine, "8th & Monroe", 1)[0])
