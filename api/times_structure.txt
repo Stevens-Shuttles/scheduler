@@ -1,8 +1,9 @@
 REQUEST
-[
-  {route_id: ID, stop_ids: [ID, ID, ID], amount: 3},
-  . . .
-]
+{
+	"route_id": "Gray",
+	"stop_ids": ["11th & Park", "11th & Madison", "12th & Maxwell"],
+	"amount": 3
+}
 
 RESPONSE
 [
