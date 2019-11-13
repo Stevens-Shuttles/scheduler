@@ -1,0 +1,16 @@
+REQUEST
+[
+  {route_id: ID, stop_ids: [ID, ID, ID], amount: 3},
+  . . .
+]
+
+RESPONSE
+[
+  {
+    route_id: ID,
+    stops: [
+      { id: ID, times: [T, T, T] },
+      { id: ID, times: [T, T, T] },
+    ]
+  }
+]

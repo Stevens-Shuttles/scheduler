@@ -1,0 +1,56 @@
+openapi: 3.0.1
+info:
+  version: "1"
+  title: Schedules API
+  termsOfService: http://www.wtfpl.net/
+tags:
+  - name: api
+    description: Access to Petstore orders
+paths:
+  /times:
+    post:
+      tags: ["api"]
+      summary: Get times for given stop(s) within given route(s)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  "route_id":
+                    type: string
+                  "stop_ids":
+                    type: array
+                    items:
+                      type: string
+                  "amount":
+                    type: number
+      responses:
+        200:
+          description: Next n times for the requested stops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    "route_id":
+                      type: string
+                    "stops":
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          "id":
+                            type: string
+                          "times":
+                            type: array
+                            items:
+                              type: string
+        404:
+          description: route/stop not found
+        500:
+          description: Internal error
